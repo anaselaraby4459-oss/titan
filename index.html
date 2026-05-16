@@ -400,32 +400,75 @@ try{ if(window.firebase && !firebase.apps.length) firebase.initializeApp(window.
 .titan-signup-box .titan-signup-note{display:block;margin-top:8px;color:var(--text-dim,#64748b);font-size:.86rem;font-weight:700}
 .titan-signup-box .titan-signup-status{margin-top:8px;font-size:.9rem;font-weight:900;color:var(--primary,#2563eb)}
 </style>
+
+<style id="titan-programming-course-landing-css">
+.course-section{padding:72px 24px;background:#f8fafc;color:#0f172a}.course-section.alt{background:#eef2ff}.course-wrap{width:min(1180px,100%);margin:auto}.course-title{text-align:center;margin-bottom:30px}.course-title h2{font-size:clamp(1.8rem,4vw,3rem);margin:0;color:#0f172a}.course-title p{color:#64748b;font-weight:800;line-height:1.9}.course-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}.course-card{background:#fff;border:1px solid #e2e8f0;border-radius:28px;padding:22px;box-shadow:0 20px 55px rgba(15,23,42,.08);line-height:1.9}.course-card h3{margin-top:0;color:#2563eb}.course-card ul{padding-right:20px;color:#475569;font-weight:800}.course-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 11px;border-radius:999px;background:rgba(37,99,235,.10);color:#2563eb;font-weight:900;font-size:.85rem;margin:3px}.course-price{font-size:1.45rem;font-weight:900;color:#0f172a}.course-timeline{display:grid;gap:12px}.course-week{background:#fff;border:1px solid #dbeafe;border-radius:20px;padding:15px;display:grid;grid-template-columns:90px 1fr;gap:12px;align-items:start}.course-week b{color:#2563eb}.course-note{background:#fff7ed;border:1px solid #fdba74;color:#9a3412;border-radius:22px;padding:16px;font-weight:900;line-height:1.9;margin-top:16px}@media(max-width:700px){.course-week{grid-template-columns:1fr}.course-section{padding:48px 16px}}
+</style>
 </head>
 <body>
 <section class="hero"><div class="wrap"><div class="grid"><div>
-<h1>استوديو التخصيص</h1>
-<p class="lead">SaaS لكل أكاديمية مع تخصيص كامل: ألوان، لوجو، أقسام، صفحة الدخول، شهادات، اشتراكات، وأمان.</p>
-<div class="tenant-box"><input id="tenant" placeholder="tenant id"/><button class="btn primary" onclick="go('student')">دخول الطالب</button><button class="btn ghost" onclick="go('admin')">دخول الإدارة</button><button class="btn ghost" onclick="go('parent')">ولي الأمر</button><button class="btn primary" onclick="toggleIndexSignup()"><i class="fas fa-user-plus"></i> إنشاء حساب</button></div>
-<div class="titan-signup-box active" id="index-signup-box" style="background:rgba(255,255,255,.95);color:#0f172a;border-color:rgba(255,255,255,.5);">
-<h3><i class="fas fa-user-plus"></i> إنشاء حساب جديد</h3>
+<h1>كورس أساسيات البرمجة بـ Python</h1>
+<p class="lead">منصة تعليم برمجة للمبتدئين: فيديوهات، تمارين، كويزات، مشاريع، شهادة، ومتابعة ولي الأمر من مكان واحد.</p>
+<div class="actions"><a class="btn primary" href="#course-signup"><i class="fas fa-paper-plane"></i> احجز مكانك</a><a class="btn ghost" href="#course-plan"><i class="fas fa-map"></i> شوف المنهج</a></div>
+<div class="tenant-box" style="margin-top:16px"><input id="tenant" placeholder="كود الأكاديمية للدخول"/><button class="btn primary" onclick="go('student')">دخول الطالب</button><button class="btn ghost" onclick="go('parent')">ولي الأمر</button><button class="btn ghost" onclick="go('admin')">دخول الإدارة</button></div>
+<div class="titan-signup-box active" id="index-signup-box" data-course-signup="1" style="background:rgba(255,255,255,.95);color:#0f172a;border-color:rgba(255,255,255,.5);">
+<h3 id="course-signup"><i class="fas fa-user-plus"></i> طلب انضمام لكورس البرمجة</h3>
 <input id="index-signup-name" placeholder="اسم الطالب بالكامل" type="text"/>
 <input id="index-signup-code" placeholder="كود الطالب المطلوب" type="text"/>
 <select id="index-signup-level"><option value="1">مستوى 1</option><option value="2">مستوى 2</option><option value="3">مستوى 3</option></select>
 <input id="index-signup-phone" placeholder="رقم الهاتف - 6 أرقام أو أكثر" type="tel"/>
-<textarea id="index-signup-note" placeholder="ملاحظة اختيارية: اسم ولي الأمر أو طريقة التواصل"></textarea>
-<button class="btn primary" onclick="sendIndexAccountRequest()" style="border:0;background:#2563eb;color:#fff;width:100%;justify-content:center;"><i class="fas fa-paper-plane"></i> إرسال طلب إنشاء الحساب</button>
+<textarea id="index-signup-note" placeholder="ملاحظة اختيارية: اسم ولي الأمر، السن، أو أفضل وقت للتواصل"></textarea>
+<button class="btn primary" onclick="sendIndexAccountRequest()" style="border:0;background:#2563eb;color:#fff;width:100%;justify-content:center;"><i class="fas fa-paper-plane"></i> إرسال طلب الانضمام</button>
 <span class="titan-signup-note">بعد موافقة الإدارة ستدخل من بوابة الطالب أو ولي الأمر بالكود ورقم الهاتف.</span>
 <div class="titan-signup-status" id="index-signup-status"></div>
 </div>
 <div class="actions"><a class="btn ghost" href="admin.html" onclick="this.href='admin.html?tenant='+encodeURIComponent(currentTenant())"><i class="fas fa-shield-halved"></i> لوحة الإدارة</a></div>
 </div><div class="card"><div class="features">
-<div class="feature"><i class="fas fa-palette"></i><h3>تخصيص كامل</h3><p>ألوان، لوجو، نصوص، أقسام، وصفحة دخول.</p></div>
-<div class="feature"><i class="fas fa-building"></i><h3>Multi Tenant</h3><p>كل أكاديمية مستقلة في بياناتها وإعداداتها.</p></div>
-<div class="feature"><i class="fas fa-certificate"></i><h3>شهادات</h3><p>قوالب شهادات قابلة للتعديل.</p></div>
-<div class="feature"><i class="fas fa-shield-halved"></i><h3>أمان</h3><p>اشتراكات، أجهزة، صلاحيات، وتعطيل طلاب.</p></div>
+<div class="feature"><i class="fas fa-code"></i><h3>تعلم عملي</h3><p>Python من الصفر مع تمارين بعد كل درس ومحرر أكواد للطالب.</p></div>
+<div class="feature"><i class="fas fa-diagram-project"></i><h3>مشاريع حقيقية</h3><p>مشروع صغير كل أسبوعين ومشروع نهائي على GitHub.</p></div>
+<div class="feature"><i class="fas fa-chart-line"></i><h3>متابعة تقدم</h3><p>درجات، حضور، واجبات، تنبيهات، وتقرير واضح لولي الأمر.</p></div>
+<div class="feature"><i class="fas fa-certificate"></i><h3>شهادة وإنجاز</h3><p>شهادة إتمام مع ملف إنجاز يعرض مشاريع الطالب.</p></div>
 </div></div></div></div></section>
 
-
+<section class="course-section" id="course-plan">
+  <div class="course-wrap">
+    <div class="course-title"><h2>الطالب هيطلع بإيه؟</h2><p>الكورس مبني على 10 وحدات، كل وحدة لها شرح، تمرين، واجب، كويز، وتطبيق عملي.</p></div>
+    <div class="course-grid">
+      <div class="course-card"><h3><i class="fas fa-terminal"></i> أساسيات Python</h3><p>متغيرات، شروط، loops، lists، dictionaries، functions، debugging.</p></div>
+      <div class="course-card"><h3><i class="fas fa-code-branch"></i> أدوات المبرمج</h3><p>Git و GitHub، تنظيم الملفات، قراءة الأخطاء، وتسليم المشاريع.</p></div>
+      <div class="course-card"><h3><i class="fas fa-database"></i> بيانات و APIs</h3><p>JSON، ملفات، APIs، ومقدمة SQL بطريقة مناسبة للمبتدئين.</p></div>
+      <div class="course-card"><h3><i class="fas fa-award"></i> مشروع نهائي</h3><p>كل طالب يبني مشروع بسيط قابل للعرض في ملف إنجازه.</p></div>
+    </div>
+  </div>
+</section>
+<section class="course-section alt">
+  <div class="course-wrap">
+    <div class="course-title"><h2>خطة 10 أسابيع</h2><p>خطة واضحة تساعدك تبيع الكورس وتديره بدون ارتجال.</p></div>
+    <div class="course-timeline">
+      <div class="course-week"><b>الأسبوع 1</b><span>إعداد البيئة + أول برنامج + فهم طريقة تفكير الكمبيوتر.</span></div>
+      <div class="course-week"><b>الأسبوع 2</b><span>المتغيرات، أنواع البيانات، input/output، وتمرين آلة حاسبة بسيطة.</span></div>
+      <div class="course-week"><b>الأسبوع 3</b><span>الشروط واللوبات + لعبة تخمين الرقم.</span></div>
+      <div class="course-week"><b>الأسبوع 4</b><span>Lists و Dictionaries + مشروع إدارة مهام صغير.</span></div>
+      <div class="course-week"><b>الأسبوع 5</b><span>Functions و Modules + تنظيم الكود.</span></div>
+      <div class="course-week"><b>الأسبوع 6</b><span>Debugging و Testing و Clean Code.</span></div>
+      <div class="course-week"><b>الأسبوع 7</b><span>مبادئ OOP بطريقة مبسطة.</span></div>
+      <div class="course-week"><b>الأسبوع 8</b><span>Files و JSON و APIs ومقدمة Web.</span></div>
+      <div class="course-week"><b>الأسبوع 9</b><span>SQL Basics + مشروع بيانات بسيط.</span></div>
+      <div class="course-week"><b>الأسبوع 10</b><span>Git/GitHub + تسليم المشروع النهائي + شهادة.</span></div>
+    </div>
+  </div>
+</section>
+<section class="course-section">
+  <div class="course-wrap">
+    <div class="course-title"><h2>باقات مقترحة</h2><p>عدّل الأسعار حسب السوق، لكن خلي العرض واضح من البداية.</p></div>
+    <div class="course-grid">
+      <div class="course-card"><h3>تجربة مجانية</h3><div class="course-price">حصة تعريفية</div><ul><li>تعريف بالمنصة</li><li>تمرين بسيط</li><li>تقييم مستوى الطالب</li></ul></div>
+      <div class="course-card"><h3>جروب أساسيات</h3><div class="course-price">8–10 أسابيع</div><ul><li>حصة أسبوعية</li><li>واجب وكويز</li><li>مشاريع صغيرة</li><li>تقرير لولي الأمر</li></ul></div>
+      <div class="course-card"><h3>متابعة خاصة</h3><div class="course-price">1:1 أو مجموعة صغيرة</div><ul><li>خطة شخصية</li><li>مراجعة كود</li><li>دعم خاص</li><li>مشروع نهائي محسن</li></ul></div>
+    </div>
+    <div class="course-note">نصيحة تشغيل: لا تبدأ بكل المميزات مرة واحدة. ابدأ بفوج صغير، 10–15 طالب، وراجع النتائج قبل التوسع.</div>
+  </div>
+</section>
 
 <script id="merged-index-js">
 /* Inlined from assets/js/index.js */
@@ -746,7 +789,7 @@ if(document.readyState==='loading') document.addEventListener('DOMContentLoaded'
         createdAt:new Date().toISOString(), date:new Date().toLocaleString('ar-EG')
       });
       ['index-signup-name','index-signup-code','index-signup-phone','index-signup-note'].forEach(function(id){if($(id)) $(id).value=''});
-      status('تم إرسال طلب إنشاء الحساب للإدارة. بعد الموافقة سجّل الدخول بالكود والهاتف.','ok');
+      status('تم إرسال طلب الانضمام للإدارة. بعد الموافقة سجّل الدخول بالكود والهاتف.','ok');
     }catch(e){console.error(e); status('تعذر إرسال الطلب. تأكد من الاتصال أو إعدادات Firebase.','err');}
   }
 })();

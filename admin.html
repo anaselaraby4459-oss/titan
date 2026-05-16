@@ -1010,16 +1010,10 @@ section,.app-section,.uiux-reveal{
 <input autocomplete="username" id="u" onkeypress="if(event.key === 'Enter') login()" placeholder="البريد الإلكتروني للإدارة" type="email"/>
 <input autocomplete="current-password" id="p" onkeypress="if(event.key === 'Enter') login()" placeholder="كلمة المرور" type="password"/>
 <button class="btn btn-primary" onclick="login()" style="width: 100%; justify-content: center; margin-top: 1rem; padding: 1rem; font-size: 1.1rem; border-radius: 12px;">تسجيل الدخول</button>
-<button class="btn btn-success" onclick="toggleAdminSignup()" style="width:100%;justify-content:center;margin-top:10px;padding:.9rem;border-radius:12px;"><i class="fas fa-user-plus"></i> إنشاء حساب إدارة جديد</button>
-<div class="titan-signup-box" id="admin-public-signup-box">
-<h3><i class="fas fa-user-shield"></i> إنشاء حساب إدارة مباشر</h3>
-<input id="admin-signup-name" placeholder="اسم المدير / صاحب الحساب" type="text"/>
-<input id="admin-signup-email" placeholder="البريد الإلكتروني للإدارة" type="email" autocomplete="email"/>
-<input id="admin-signup-password" placeholder="كلمة المرور - 6 أحرف أو أكثر" type="password" autocomplete="new-password"/>
-<input id="admin-signup-password2" placeholder="تأكيد كلمة المرور" type="password" autocomplete="new-password"/>
-<button class="btn btn-primary" onclick="createPublicAdminAccountDirect()" style="width:100%;justify-content:center;"><i class="fas fa-user-check"></i> إنشاء حساب الإدارة الآن</button>
-<span class="titan-signup-note">سيتم إنشاء حساب الإدارة مباشرة في مساحة خاصة به؛ كل مدرس يرى طلابه ودروسه فقط.</span>
-<div class="titan-signup-status" id="admin-signup-status"></div>
+<div class="titan-signup-box active" id="admin-secure-admin-note" style="background:rgba(245,158,11,.10);border-color:rgba(245,158,11,.35);">
+<h3><i class="fas fa-lock"></i> إنشاء حساب الإدارة مقفول للإنتاج</h3>
+<span class="titan-signup-note">تم إغلاق إنشاء حسابات الإدارة من الرابط العام. لإنشاء مدير جديد: أنشئ المستخدم من Firebase Authentication ثم أضف UID داخل <b>super_admins</b> أو <b>tenants/{tenantId}/admins</b> من صاحب المنصة فقط.</span>
+<div class="titan-signup-status" id="admin-signup-status">هذا يمنع أي شخص معه رابط لوحة الإدارة من أخذ صلاحية Admin.</div>
 </div>
 </div>
 </div>
@@ -5355,80 +5349,11 @@ document.addEventListener('DOMContentLoaded',function(){setTimeout(inject,700);s
 
 <script id="titan-create-account-admin-public-js">
 (function(){
-  function $(id){return document.getElementById(id)}
-  function tenant(){
-    var raw=(window.TitanSaaS&&TitanSaaS.tenantId)||new URLSearchParams(location.search).get('tenant')||localStorage.getItem('titanTenantId')||'titan';
-    return sanitizeTenantId(raw || 'titan');
-  }
-  function clean(v){return String(v||'').trim()}
-  function status(msg,type){var el=$('admin-signup-status'); if(el){el.textContent=msg; el.style.color=type==='ok'?'#10b981':(type==='err'?'#ef4444':'var(--primary,#6366f1)');}}
-  window.toggleAdminSignup=function(){var box=$('admin-public-signup-box'); if(box) box.classList.toggle('active')};
-
-  window.createPublicAdminAccountDirect=async function(){
-    var name=clean($('admin-signup-name')&&$('admin-signup-name').value);
-    var email=clean($('admin-signup-email')&&$('admin-signup-email').value).toLowerCase();
-    var password=clean($('admin-signup-password')&&$('admin-signup-password').value);
-    var password2=clean($('admin-signup-password2')&&$('admin-signup-password2').value);
-    var tenantId='';
-    if(!name||!email||!password){status('اكتب الاسم والبريد وكلمة المرور أولاً.','err');return;}
-    if(!/^\S+@\S+\.\S+$/.test(email)){status('البريد الإلكتروني غير صالح.','err');return;}
-    if(password.length<6){status('كلمة المرور يجب ألا تقل عن 6 أحرف.','err');return;}
-    if(password!==password2){status('كلمتا المرور غير متطابقتين.','err');return;}
-    try{
-      if(!window.firebase || !firebase.auth || !firebase.database) throw new Error('Firebase غير جاهز');
-      status('جاري إنشاء حساب الإدارة...','wait');
-
-      var cred;
-      try{
-        cred = await firebase.auth().createUserWithEmailAndPassword(email,password);
-      }catch(e){
-        if(e && e.code === 'auth/email-already-in-use'){
-          cred = await firebase.auth().signInWithEmailAndPassword(email,password);
-        }else{
-          throw e;
-        }
-      }
-      var user=cred.user;
-      var tenantId=personalAdminTenantId(user);
-      var profile={
-        uid:user.uid,
-        name:name,
-        email:email,
-        role:'owner',
-        source:'public-admin-signup',
-        tenantId:tenantId,
-        createdAt:Date.now(),
-        createdAtIso:new Date().toISOString()
-      };
-
-      await firebase.database().ref('tenants/'+tenantId+'/admins/'+user.uid).set(true);
-      await firebase.database().ref('user_tenants/'+user.uid+'/'+tenantId).set('owner');
-      await firebase.database().ref('tenants/'+tenantId+'/admin_profiles/'+user.uid).set(profile);
-      await firebase.database().ref('tenants/'+tenantId+'/settings/isolation').update({mode:'per_admin_private_tenant', ownerUid:user.uid, updatedAt:Date.now()});
-      await firebase.database().ref('tenants/'+tenantId+'/audit_logs').push({
-        type:'public_admin_signup_private_tenant', actor:user.uid, email:email, name:name,
-        tenantId:tenantId, createdAt:Date.now(), createdAtIso:new Date().toISOString()
-      });
-      try { await firebase.database().ref('public_tenants/'+tenantId).set({ownerUid:user.uid, public:true, createdAt:Date.now()}); } catch(_e) {}
-
-      localStorage.setItem('titanTenantId', tenantId);
-      if($('u')) $('u').value=email;
-      if($('p')) $('p').value=password;
-      ['admin-signup-name','admin-signup-email','admin-signup-password','admin-signup-password2'].forEach(function(id){if($(id)) $(id).value=''});
-      status('تم إنشاء حساب الإدارة في مساحة خاصة. سيتم فتحها الآن.','ok');
-      setTimeout(function(){ redirectToTenant(tenantId); }, 300);
-    }catch(e){
-      console.error(e);
-      var msg=(e && (e.code || e.message)) ? (e.code || e.message) : String(e);
-      if(String(msg).indexOf('permission')>=0) msg+=' — ارفع ملف firebase-rules.json المرفق إلى Firebase Realtime Database Rules أولاً.';
-      if(String(msg).indexOf('unauthorized-domain')>=0) msg+=' — أضف الدومين الحالي في Firebase Authentication > Settings > Authorized domains.';
-      status('تعذر إنشاء حساب الإدارة: '+msg,'err');
-    }
-  };
-
-  window.sendAdminPublicAccountRequest = window.createPublicAdminAccountDirect;
+  function msg(){ alert('إنشاء حسابات الإدارة من الصفحة العامة مقفول في نسخة الإنتاج. استخدم Firebase Console أو حساب super_admin فقط.'); }
+  window.toggleAdminSignup = msg;
+  window.createPublicAdminAccountDirect = msg;
+  window.sendAdminPublicAccountRequest = msg;
 })();
 </script>
-
 </body>
 </html>
